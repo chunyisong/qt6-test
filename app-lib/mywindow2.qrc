@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="lib2">
+    <file>res/en2.png</file>
+  </qresource>
+</RCC>

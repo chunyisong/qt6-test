@@ -1,0 +1,239 @@
+﻿{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "use-ninja",
+            "hidden": true,
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_STANDARD": "17",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_VERBOSE_MAKEFILE": "ON",
+                "CMAKE_DEBUG_POSTFIX": "d",
+                "BUILD_SHARED_LIBS": "ON"
+            }
+        },
+        {
+            "name": "default-build-dir",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/dist"
+            }
+        },
+        {
+            "name": "debug-build",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release-build",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "release-with-min-size-build",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "release-with-debug-build",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "use-vc",
+            "hidden": true,
+            "inherits": [
+                "default-build-dir",
+                "use-ninja"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        },
+        {
+            "name": "vc143-arch-x64",
+            "description": "指定msvc特定版本对应的CMAKE_VS_PLATFORM_TOOLSET_VERSION,该值为Community/VC/Auxiliary/Build/Microsoft.VCToolsVersion.*.props 文件中的'VCToolsVersion'属性配置的值. It also matches vcvarsall.bat's -vcvars_ver= behavior.",
+            "hidden": true,
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "host=x64,version=14.41",
+                "strategy": "external"
+            }
+        },
+        {
+            "name": "vc143-arch-x86",
+            "description": "指定msvc特定版本对应的CMAKE_VS_PLATFORM_TOOLSET_VERSION,该值为Community/VC/Auxiliary/Build/Microsoft.VCToolsVersion.*.props 文件中的'VCToolsVersion'属性配置的值. It also matches vcvarsall.bat's -vcvars_ver= behavior.",
+            "hidden": true,
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "host=x86,version=14.41",
+                "strategy": "external"
+            }
+        },
+        {
+            "name": "vc143-default",
+            "hidden": true,
+            "inherits": [
+                "use-vc",
+                "vc143-arch-x64"
+            ],
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [
+                        "Windows"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "vc143-x64-dbg",
+            "inherits": [
+                "vc143-default",
+                "debug-build"
+            ]
+        },
+        {
+            "name": "vc143-x64-rel",
+            "inherits": [
+                "vc143-default",
+                "release-build"
+            ]
+        },
+        {
+            "name": "use-gcc",
+            "hidden": true,
+            "inherits": [
+                "default-build-dir",
+                "use-ninja"
+            ],
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
+            }
+        },
+        {
+            "name": "mingw32_13-gcc_13-x86_64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "inherits": [
+                "use-gcc"
+            ],
+            "environment": {
+                "CMT_MINGW_PATH": "C:/Qt/Tools/mingw1310_64/bin",
+                "MINGW_DIR": "$env{CMT_MINGW_PATH}/.."
+            }
+        },
+        {
+            "name": "qt6-mingw13-x86_64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "environment": {
+                "QT_DIR": "C:/Qt/6.8.0/mingw_64",
+                "PATH": "$env{QT_DIR}/bin;$env{MINGW_DIR}/bin;$penv{PATH}"
+            }
+        },
+        {
+            "name": "qt6-vc143-x64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "environment": {
+                "QT_DIR": "C:/Qt/6.8.0/msvc2022_64",
+                "PATH": "$env{QT_DIR}/bin;$penv{PATH}"
+            }
+        },
+        {
+            "name": "qt6-mingw13-x86_64-rel",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "qt6-mingw13-x86_64",
+                "mingw32_13-gcc_13-x86_64",
+                "release-build"
+            ]
+        },
+        {
+            "name": "qt6-mingw13-x86_64-dbg",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "qt6-mingw13-x86_64",
+                "mingw32_13-gcc_13-x86_64",
+                "debug-build"
+            ]
+        },
+        {
+            "name": "qt6-vc143-x64-rel",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "qt6-vc143-x64",
+                "vc143-default",
+                "release-build"
+            ]
+        },
+        {
+            "name": "qt6-vc143-x64-dbg",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "qt6-vc143-x64",
+                "vc143-default",
+                "debug-build"
+            ]
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "vc143X64Dbg",
+            "configurePreset": "vc143-x64-dbg"
+        },
+        {
+            "name": "vc143X64Rel",
+            "configurePreset": "vc143-x64-rel"
+        },
+        {
+            "name": "qtVc143X64Dbg",
+            "configurePreset": "qt6-vc143-x64-dbg",
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+        },
+        {
+            "name": "qtVc143X64Rel",
+            "configurePreset": "qt6-vc143-x64-rel",
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+        },
+        {
+            "name": "qtMingw13X8664Dbg",
+            "configurePreset": "qt6-mingw13-x86_64-dbg",
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+        },
+        {
+            "name": "qtMingw13X8664Rel",
+            "configurePreset": "qt6-mingw13-x86_64-rel",
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+        }
+    ]
+}
