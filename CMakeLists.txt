@@ -11,7 +11,7 @@ project ("qt6test")
 # qt6 requires a compiler >= CXX17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+message(STATUS "*****CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
 set(install_library_dir lib CACHE PATH "CMAKE_INSTALL_PREFIX/lib,共享库.so/.lib/cmake配置文件等存放目录" FORCE)
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)    #CMAKE的内建变量，为8就说明编译的是64bit的程序
     set(install_library_dir lib64 CACHE PATH "CMAKE_INSTALL_PREFIX/lib64,共享库.so/.lib64/cmake配置文件等存放目录" FORCE)

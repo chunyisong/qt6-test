@@ -1,5 +1,5 @@
-﻿{
-    "version": 6,
+{
+    "version": 3,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 20,
@@ -204,6 +204,37 @@
                 "vc143-default",
                 "debug-build"
             ]
+        },
+        {
+            "name": "qt6-wasm32-st-rel",
+            "binaryDir": "${sourceDir}/build-st",
+            "inherits": [
+                "release-build"
+            ],
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build-st/dist"
+            },
+            "environment": {
+                "EMSDK": "/qt-dev/emsdk",
+                "EMSDK_NODE": "$env{EMSDK}/node/18.20.3_64bit/bin/node",
+                "PATH": "$env{EMSDK}:$env{EMSDK}/upstream/emscripten:$env{EMSDK_NODE}/../bin;$penv{PATH}",
+                "QT_WASM_DIR": "/qt-dev/Qt/6.8.0/wasm_singlethread",
+                "CMAKE_TOOLCHAIN_FILE":"$env{QT_WASM_DIR}/lib/cmake/Qt6/qt.toolchain.cmake"
+            }
+        },
+        {
+            "name": "qt6-wasm32-mt-rel",
+            "inherits": [
+                "qt6-wasm32-st-rel"
+            ],
+            "binaryDir": "${sourceDir}/build-mt",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build-mt/dist"
+            },
+            "environment": {
+                "QT_WASM_DIR": "/qt-dev/Qt/6.8.0/wasm_multithread"
+            }
         }
     ],
     "buildPresets": [
@@ -234,6 +265,16 @@
             "name": "qtMingw13X8664Rel",
             "configurePreset": "qt6-mingw13-x86_64-rel",
             "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+        },
+        {
+            "name": "qtWasmStRel",
+            "configurePreset": "qt6-wasm32-st-rel",
+            "targets": "install"
+        },
+        {
+            "name": "qtWasmMtRel",
+            "configurePreset": "qt6-wasm32-mt-rel",
+            "targets": "install"
         }
     ]
 }

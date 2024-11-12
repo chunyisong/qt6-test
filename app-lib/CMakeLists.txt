@@ -45,6 +45,8 @@ target_include_directories(${PROJECT_NAME}
     # PRIVATE
     #     ${CMAKE_CURRENT_SOURCE_DIR}/srccd
 )
+message(STATUS "***CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},install_runtime_dir:${install_runtime_dir}")
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
 if(EMSCRIPTEN)
     # qtbase src/corelib/Qt6WasmMacros.cmake
     set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -53,8 +55,6 @@ if(EMSCRIPTEN)
         QT_WASM_PTHREAD_POOL_SIZE 4 # 除主线程为额外线程池大小,多线程启用时有效
     )
 endif()
-
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
 install(TARGETS ${PROJECT_NAME}
         EXPORT ${PROJECT_NAME}Exports
 		RUNTIME DESTINATION ${install_runtime_dir}
