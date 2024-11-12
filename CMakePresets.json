@@ -161,6 +161,15 @@
             }
         },
         {
+            "name": "qt6-gcc-x86_64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "environment": {
+                "QT_DIR": "/qt-dev/Qt/6.8.0/gcc_64",
+                "PATH": "$env{QT_DIR}/bin:$penv{PATH}"
+            }
+        },
+        {
             "name": "qt6-vc143-x64",
             "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
             "hidden": true,
@@ -185,6 +194,24 @@
                 "qt6-mingw13-x86_64",
                 "mingw32_13-gcc_13-x86_64",
                 "debug-build"
+            ]
+        },
+        {
+            "name": "qt6-gcc-x86_64-dbg",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "qt6-gcc-x86_64",
+                "use-gcc",
+                "debug-build"
+            ]
+        },
+        {
+            "name": "qt6-gcc-x86_64-rel",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "qt6-gcc-x86_64",
+                "use-gcc",
+                "release-build"
             ]
         },
         {
@@ -218,7 +245,7 @@
             "environment": {
                 "EMSDK": "/qt-dev/emsdk",
                 "EMSDK_NODE": "$env{EMSDK}/node/18.20.3_64bit/bin/node",
-                "PATH": "$env{EMSDK}:$env{EMSDK}/upstream/emscripten:$env{EMSDK_NODE}/../bin;$penv{PATH}",
+                "PATH": "$env{EMSDK}:$env{EMSDK}/upstream/emscripten:$env{EMSDK_NODE}/../bin:$penv{PATH}",
                 "QT_WASM_DIR": "/qt-dev/Qt/6.8.0/wasm_singlethread",
                 "CMAKE_TOOLCHAIN_FILE":"$env{QT_WASM_DIR}/lib/cmake/Qt6/qt.toolchain.cmake"
             }
@@ -249,22 +276,38 @@
         {
             "name": "qtVc143X64Dbg",
             "configurePreset": "qt6-vc143-x64-dbg",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
+            "targets": "install"
         },
         {
             "name": "qtVc143X64Rel",
             "configurePreset": "qt6-vc143-x64-rel",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
+            "targets": "install"
         },
         {
             "name": "qtMingw13X8664Dbg",
             "configurePreset": "qt6-mingw13-x86_64-dbg",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
+            "targets": "install"
         },
         {
             "name": "qtMingw13X8664Rel",
             "configurePreset": "qt6-mingw13-x86_64-rel",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可"
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
+            "targets": "install"
+        },
+        {
+            "name": "qtGccX8664Dgb",
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
+            "configurePreset": "qt6-gcc-x86_64-dbg",
+            "targets": "install"
+        },
+        {
+            "name": "qtGccX8664Rel",
+            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
+            "configurePreset": "qt6-gcc-x86_64-rel",
+            "targets": "install"
         },
         {
             "name": "qtWasmStRel",
