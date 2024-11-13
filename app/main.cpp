@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
     initGlobalFont(a);
 
     auto win = new QWidget;
-
+    // wasm 在输入框文字快速反复选择可能导致无尽事件循环导致内存宿主机耗尽
     auto showDlg = [win](QPushButton* parent, bool isModal = false) {
         auto mw = new MyWindow();
         auto vLayout = new QVBoxLayout;
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
         // dp = parent->topLevelWidget();
         // dp = win;
         // dp = nullptr;
-        auto dlg = new QDialog(dp); // 必须要父对象,否则可能导致时间无尽循环
+        auto dlg = new QDialog(dp);
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
         dlg->setWindowFlags(dlg->windowFlags() | Qt::WindowStaysOnTopHint);
         dlg->setModal(isModal);
