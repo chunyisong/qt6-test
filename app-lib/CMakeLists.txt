@@ -2,15 +2,13 @@ cmake_minimum_required(VERSION 3.21.1)
 
 project(MyWindow)
 
-
-
 #设置自动生成目录
 set(autogen_dir ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen)
 # 安装阶段(类库使用者需要的)头文件目录列表
 set(install_includes_dir ${install_includes_dir}/${lib_name})
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
-# qt_standard_project_setup() # auto uic/moc/dirs
 
+# qt_standard_project_setup() # auto uic/moc/dirs
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 # 把.qrc文件当成源文件放入add_executable/add_library中即可;对于静态库,qrc文件名必须全局唯一且符合c++变量名规范以便添加到main Q_INIT_RESOURCE(qrc文件名);
@@ -45,7 +43,7 @@ target_include_directories(${PROJECT_NAME}
     # PRIVATE
     #     ${CMAKE_CURRENT_SOURCE_DIR}/srccd
 )
-message(STATUS "***CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},install_runtime_dir:${install_runtime_dir}")
+message(STATUS "*****CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},CMAKE_INSTALL_FULL_BINDIR:${CMAKE_INSTALL_FULL_BINDIR},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
 if(EMSCRIPTEN)
     # qtbase src/corelib/Qt6WasmMacros.cmake
