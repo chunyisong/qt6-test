@@ -11,15 +11,8 @@ project ("qt6test")
 # qt6 requires a compiler >= CXX17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(GNUInstallDirs) # 设置编译产物安装时相对于CMAKE_INSTALL_PREFIX的相对目录名CMAKE_INSTALL_<dir>系列
 message(STATUS "*****CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},CMAKE_INSTALL_FULL_BINDIR:${CMAKE_INSTALL_FULL_BINDIR},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
-set(install_library_dir lib CACHE PATH "CMAKE_INSTALL_PREFIX/lib,共享库.so/.lib/cmake配置文件等存放目录" FORCE)
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)    #CMAKE的内建变量，为8就说明编译的是64bit的程序
-    set(install_library_dir lib64 CACHE PATH "CMAKE_INSTALL_PREFIX/lib64,共享库.so/.lib64/cmake配置文件等存放目录" FORCE)
-endif()
-set(install_archive_dir ${install_library_dir} CACHE PATH "CMAKE_INSTALL_PREFIX/lib,静态库.a等存放目录" FORCE)
-set(install_runtime_dir bin CACHE PATH "CMAKE_INSTALL_PREFIX/bin,运行库.dll/.exe等应用程序存放目录" FORCE)
-set(install_wasm_dir wasm CACHE PATH "CMAKE_INSTALL_PREFIX/wasm,wasm应用程序存放目录" FORCE)
-set(install_includes_dir include CACHE PATH "CMAKE_INSTALL_PREFIX/include,库头文件库.h等存放目录" FORCE)
 
 # 包含子项目。
 add_subdirectory("app-lib")
