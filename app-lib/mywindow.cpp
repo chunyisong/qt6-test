@@ -7,6 +7,8 @@ MyWindow::MyWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MyWindow)
 {
     ui->setupUi(this);
+    // wasm 在输入框文字快速选择文字并拖拽时导致无尽事件循环导致内存宿主机耗尽
+    // ui->plainTextEdit->setAcceptDrops(false); // 不起作用
     this->on_pushButton_Reset_clicked();
     QObject::connect(ui->radioButton_Blue, &QRadioButton::clicked, this, qOverload<>(&MyWindow::do_FontColor));
     QObject::connect(ui->radioButton_Red, &QRadioButton::clicked, this, qOverload<>(&MyWindow::do_FontColor));

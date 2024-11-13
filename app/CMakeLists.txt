@@ -45,9 +45,9 @@ if(EMSCRIPTEN)
         QT_WASM_PTHREAD_POOL_SIZE 4 # 除主线程为额外线程池大小,多线程启用时有效
     )
     # 添加命令行参数把config目录映射到emscripten虚拟文件系统的根目录下
-    # target_link_libraries(${lib_name} PRIVATE
-    #     "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/config@/config"
-    # )
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/res@/res"
+    )
     # 安装部署相关的html文件到指定目录
     install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/
@@ -68,5 +68,15 @@ else()
     # install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/config
     #         DESTINATION ${install_runtime_dir}
     # )
+
+    qt_generate_deploy_app_script(
+        TARGET ${PROJECT_NAME}
+        OUTPUT_SCRIPT deploy_script
+        NO_TRANSLATIONS
+        NO_COMPILER_RUNTIME
+        # NO_UNSUPPORTED_PLATFORM_ERROR
+    )
+    message(STATUS "**** ${PROJECT_NAME} deploy_script: ${deploy_script}")
+    install(SCRIPT ${deploy_script})
 endif()
 

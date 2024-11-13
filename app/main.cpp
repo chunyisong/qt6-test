@@ -11,8 +11,9 @@
 // 设置全局字体 黑体，用于解决Qt for WebAssembly中文显示异常
 void initGlobalFont(QApplication& mainApp)
 {
-    QString fontName = ":/app/res/simhei.ttf";
+    QString fontName = ":/app/res/simhei.ttf"; // rcc 文件路径
 #ifdef Q_OS_WASM
+    fontName = "/res/simhei.ttf";  // 内存文件系统路径
     int fontId = QFontDatabase::addApplicationFont(fontName);
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
     qDebug()<< __FUNCTION__ << __LINE__  << " 设置全局字体(" << fontName << "):" << fontFamilies;
@@ -47,7 +48,6 @@ int main(int argc, char* argv[])
     initGlobalFont(a);
 
     auto win = new QWidget;
-    // wasm 在输入框文字快速反复选择可能导致无尽事件循环导致内存宿主机耗尽
     auto showDlg = [win](QPushButton* parent, bool isModal = false) {
         auto mw = new MyWindow();
         auto vLayout = new QVBoxLayout;
