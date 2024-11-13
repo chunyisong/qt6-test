@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21.1)
 
 project(app)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools)
 
 qt_standard_project_setup() # auto uic/moc/dirs
 # set(CMAKE_AUTOMOC ON)

@@ -1,6 +1,31 @@
 #include "mywindow.h"
+
 #include <QApplication>
 #include <QDebug>
+#include <QFontDatabase>
+#include <QDialog>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+// 设置全局字体 黑体，用于解决Qt for WebAssembly中文显示异常
+void initGlobalFont(QApplication& mainApp)
+{
+    QString fontName = ":/app/res/simhei.ttf";
+#ifdef Q_OS_WASM
+    int fontId = QFontDatabase::addApplicationFont(fontName);
+    QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
+    qDebug()<< __FUNCTION__ << __LINE__  << " 设置全局字体(" << fontName << "):" << fontFamilies;
+    if (fontFamilies.size() > 0)
+    {
+        QFont font;
+        font.setFamily(fontFamilies[0]); //设置全局字体
+        mainApp.setFont(font);
+    }
+#else
+    qDebug()<< __FUNCTION__ << __LINE__  << " 未设置宏:Q_OS_WASM,无须设置全局字体(" << fontName << ")";
+#endif //Q_OS_WASM
+}
 
 /// 初始化静态库中的资源,qrc文件名称要符合c++变量命名规范,该函数不能在命名空间中,必须在全局中定义该函数执行Q_INIT_RESOURCE
 inline void initResources()
@@ -19,8 +44,54 @@ int main(int argc, char* argv[])
     QApplication a(argc, argv);
 
     initResources();
+    initGlobalFont(a);
 
-    MyWindow m;
-    m.show();
+    auto win = new QWidget;
+
+    auto showDlg = [win](QPushButton* parent, bool isModal = false) {
+        auto mw = new MyWindow();
+        auto vLayout = new QVBoxLayout;
+        vLayout->addWidget(mw);
+        auto dp = (QWidget*)parent;
+        // dp = parent->topLevelWidget();
+        // dp = win;
+        // dp = nullptr;
+        auto dlg = new QDialog(dp); // 必须要父对象,否则可能导致时间无尽循环
+        dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+        dlg->setWindowFlags(dlg->windowFlags() | Qt::WindowStaysOnTopHint);
+        dlg->setModal(isModal);
+        dlg->setLayout(vLayout);
+        dlg->show();
+        qDebug() << __FUNCTION__ << "#" << __LINE__ << " showDlg btn.clicked:" << parent->text() << ",isModal:" << isModal << ",dlg.parent:" << dlg->parent();
+    };
+    auto btnDlg = new QPushButton("弹出对话框非模态");
+    btnDlg->setToolTip(QString("tooltip:%1").arg(btnDlg->text()));
+    auto btnModal = new QPushButton("弹出对话框模态");
+    btnModal->setToolTip(QString("tooltip:%1").arg(btnModal->text()));
+    auto btnMsg = new QPushButton("弹出消息框");
+    btnMsg->setToolTip(QString("tooltip:%1").arg(btnMsg->text()));
+    QObject::connect(btnDlg, &QPushButton::clicked, btnDlg, [btnDlg, showDlg](bool checked) {
+        showDlg(btnDlg, false);
+    });
+    QObject::connect(btnModal, &QPushButton::clicked, btnModal, [btnModal, showDlg](bool checked) {
+        showDlg(btnModal, true);
+    });
+    QObject::connect(btnMsg, &QPushButton::clicked, btnMsg, [btnMsg](bool checked) {
+        QString str;
+        for (int j = 0, n = 10; j < n; ++j) {
+            str.append(u8"这是一个警告消息djfidjgf \n");
+        }
+        auto msgbox = new QMessageBox(QMessageBox::Warning, u8"警告消息", str, QMessageBox::Yes | QMessageBox::No,btnMsg);
+        msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
+        msgbox->show();
+        qDebug() << __FUNCTION__ << "#" << __LINE__ << " showMsgbox btn.clicked:" << btnMsg->text();
+    });
+    auto vLayout = new QVBoxLayout;
+    vLayout->addWidget(btnDlg);
+    vLayout->addWidget(btnModal);
+    vLayout->addWidget(btnMsg);
+    vLayout->addWidget(new MyWindow);
+    win->setLayout(vLayout);
+    win->show();
     return a.exec();
 }

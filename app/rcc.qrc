@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="app">
     <file>res/en.png</file>
+    <file>res/simhei.ttf</file>
   </qresource>
 </RCC>

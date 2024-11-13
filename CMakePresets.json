@@ -16,7 +16,7 @@
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_VERBOSE_MAKEFILE": "ON",
                 "CMAKE_DEBUG_POSTFIX": "d",
-                "BUILD_SHARED_LIBS": "OFF"
+                "BUILD_SHARED_LIBS": "ON"
             }
         },
         {
@@ -246,8 +246,8 @@
                 "EMSDK": "/qt-dev/emsdk",
                 "EMSDK_NODE": "$env{EMSDK}/node/18.20.3_64bit/bin/node",
                 "PATH": "$env{EMSDK}:$env{EMSDK}/upstream/emscripten:$env{EMSDK_NODE}/../bin:$penv{PATH}",
-                "QT_WASM_DIR": "/qt-dev/Qt/6.8.0/wasm_singlethread",
-                "CMAKE_TOOLCHAIN_FILE":"$env{QT_WASM_DIR}/lib/cmake/Qt6/qt.toolchain.cmake"
+                "QT_DIR_WASM": "/qt-dev/Qt/6.8.0/wasm_singlethread",
+                "CMAKE_TOOLCHAIN_FILE":"$env{QT_DIR_WASM}/lib/cmake/Qt6/qt.toolchain.cmake"
             }
         },
         {
@@ -260,7 +260,7 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build-mt/dist"
             },
             "environment": {
-                "QT_WASM_DIR": "/qt-dev/Qt/6.8.0/wasm_multithread"
+                "QT_DIR_WASM": "/qt-dev/Qt/6.8.0/wasm_multithread"
             }
         }
     ],

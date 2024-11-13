@@ -40,10 +40,10 @@ MyWindow::~MyWindow()
 void MyWindow::on_pushButton_Reset_clicked()
 {
     QFont font = ui->plainTextEdit->font();
-    font.setFamily(u8"微软雅黑");
+    // font.setFamily(u8"微软雅黑");
     font.setPixelSize(50);
     ui->plainTextEdit->setFont(font);
-    ui->plainTextEdit->setPlainText(u8"这是一段中文");
+    ui->plainTextEdit->setPlainText(u8"Qt6.8 支持中文输入/复制/粘贴/提示框/消息框了!");
     qDebug() << __FUNCTION__ << "#" << __LINE__ << " Reset";
 }
 
