@@ -26,10 +26,6 @@ message(STATUS "*****CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},CMAKE_INSTALL
 qt_add_executable(${PROJECT_NAME} main.cpp rcc.qrc)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets MyWindow)
 add_dependencies(${PROJECT_NAME} MyWindow)
-if(WIN32)
-    # ON will make app wihtout console CMAKE_WIN32_EXECUTABLE
-    set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE OFF)
-endif()
 
 # 添加项目构建和安装发布需要的头文件目录
 target_include_directories(${PROJECT_NAME}
@@ -39,6 +35,7 @@ target_include_directories(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME} PROPERTIES
     AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/ui"
     AUTOGEN_BUILD_DIR ${autogen_dir}
+    WIN32_EXECUTABLE OFF # For WIN32,default ON will make app wihtout console (CMAKE_WIN32_EXECUTABLE)
 )
 if(EMSCRIPTEN)
     # qtbase src/corelib/Qt6WasmMacros.cmake

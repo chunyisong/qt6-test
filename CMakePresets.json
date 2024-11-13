@@ -16,7 +16,7 @@
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_VERBOSE_MAKEFILE": "ON",
                 "CMAKE_DEBUG_POSTFIX": "d",
-                "BUILD_SHARED_LIBS": "ON"
+                "BUILD_SHARED_LIBS": "OFF"
             }
         },
         {
