@@ -24,7 +24,7 @@ void initGlobalFont(QApplication& mainApp)
         mainApp.setFont(font);
     }
 #else
-    qDebug()<< __FUNCTION__ << __LINE__  << " 未设置宏:Q_OS_WASM,无须设置全局字体(" << fontName << ")";
+    qDebug()<< __FUNCTION__ << __LINE__  << u8" 未设置宏:Q_OS_WASM,无须设置全局字体(" << fontName << ")";
 #endif //Q_OS_WASM
 }
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
         auto msgbox = new QMessageBox(QMessageBox::Warning, u8"警告消息", str, QMessageBox::Yes | QMessageBox::No,btnMsg);
         msgbox->setAttribute(Qt::WA_DeleteOnClose, true);
         msgbox->show();
-        qDebug() << __FUNCTION__ << "#" << __LINE__ << " showMsgbox btn.clicked:" << btnMsg->text();
+        qDebug() << __FUNCTION__ << "#" << __LINE__ << u8" showMsgbox btn.clicked:" << btnMsg->text();
     });
     auto vLayout = new QVBoxLayout;
     vLayout->addWidget(btnDlg);
