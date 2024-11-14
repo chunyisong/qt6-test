@@ -49,9 +49,9 @@ int main(int argc, char* argv[])
 
     auto win = new QWidget;
     auto showDlg = [win](QPushButton* parent, bool isModal = false) {
-        auto mw = new MyWindow();
+        auto gw = MyWindow::createGraphicsWindow(1E8);
         auto vLayout = new QVBoxLayout;
-        vLayout->addWidget(mw);
+        vLayout->addWidget(gw);
         auto dp = (QWidget*)parent;
         // dp = parent->topLevelWidget();
         // dp = win;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
         dlg->setModal(isModal);
         dlg->setLayout(vLayout);
         dlg->show();
-        qDebug() << __FUNCTION__ << "#" << __LINE__ << " showDlg btn.clicked:" << parent->text() << ",isModal:" << isModal << ",dlg.parent:" << dlg->parent();
+        qDebug() << __FUNCTION__ << "#" << __LINE__ << " showDlg>createGraphicsWindow,isModal:" << isModal << ",dlg.parent:" << dlg->parent();
     };
     auto btnDlg = new QPushButton("弹出对话框非模态");
     btnDlg->setToolTip(QString("tooltip:%1").arg(btnDlg->text()));

@@ -3,17 +3,29 @@
 
 #include "global.h"
 #include <QMainWindow>
+#include <QPlainTextEdit>
 
 namespace Ui
 {
     class MyWindow;
 }
+class QMouseEvent;
+class QDragEnterEvent;
+class APP_LIB_EXPORT ZPlainTextEdit : public QPlainTextEdit
+{
+public:
+    ZPlainTextEdit(QWidget* parent = nullptr, bool isDragTextEnabled = false);
+protected:
+    void mousePressEvent(QMouseEvent* e) override;
 
+    bool isDragTextEnabled;
+};
 class APP_LIB_EXPORT MyWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    static QMainWindow* createGraphicsWindow(double scale = 1E7);
     explicit MyWindow(QWidget *parent = nullptr);
     ~MyWindow();
 
