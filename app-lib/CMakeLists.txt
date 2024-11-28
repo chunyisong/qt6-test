@@ -10,10 +10,10 @@ qt_standard_project_setup() # auto uic/moc/dirs
 # 把.qrc文件当成源文件放入add_executable/add_library中即可;对于静态库,qrc文件名必须全局唯一且符合c++变量名规范以便添加到main Q_INIT_RESOURCE(qrc文件名);
 set(CMAKE_AUTORCC ON)
 
+set(install_dir ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}) #相对于 CMAKE_INSTALL_PREFIX
+
 #设置自动生成目录
 set(autogen_dir ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen)
-# 安装阶段(类库使用者需要的)头文件目录列表
-set(install_includes_dir ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 # 编译阶段(本次构建树需要的)头文件目录列表;生成表达式内务必使用绝对路径;需要发布的ui头文件需要特别处理
 set(build_interface_dirs
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -37,35 +37,27 @@ endif()
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${build_interface_dirs}
-        $<INSTALL_INTERFACE:${install_includes_dir}>
+        $<INSTALL_INTERFACE:${install_dir}/${CMAKE_INSTALL_INCLUDEDIR}>
 )
 set_target_properties(${PROJECT_NAME} PROPERTIES
     AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/ui"
     AUTOGEN_BUILD_DIR ${autogen_dir}
 )
-if(EMSCRIPTEN)
-    # qtbase src/corelib/Qt6WasmMacros.cmake
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        QT_WASM_MAXIMUM_MEMORY "2GB" # 最大内存4G,必须是64KB的整数倍
-        QT_WASM_INITIAL_MEMORY "500MB" # 初始内存500NB,必须是64KB的整数倍
-        QT_WASM_PTHREAD_POOL_SIZE 4 # 除主线程为额外线程池大小,多线程启用时有效
-    )
-endif()
 install(TARGETS ${PROJECT_NAME}
         EXPORT ${PROJECT_NAME}Exports
-		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${install_dir}/${CMAKE_INSTALL_BINDIR}
+		ARCHIVE DESTINATION ${install_dir}/${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${install_dir}/${CMAKE_INSTALL_LIBDIR}
 )
 # 拷贝代码目录下的头文件及其树结构;如果目录后缀不带反斜杠/则在安装时会包括目录本身
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${install_includes_dir}
+        DESTINATION ${install_dir}/${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.h"
         REGEX "(/|^)([gG]eneratedFiles|bin|dist|build|lib|Debug|debug|Release|release|(\\.[^/^\\.]*))/" EXCLUDE
 )
 # 需要发布的ui头文件需要拷贝到包含目录
 install(DIRECTORY ${autogen_dir}/include/  ${autogen_dir}/include_${CMAKE_BUILD_TYPE}/
-        DESTINATION ${install_includes_dir}
+        DESTINATION ${install_dir}/${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.h"
         REGEX "(/|^)([gG]eneratedFiles|bin|dist|build|lib|Debug|debug|Release|release|(\\.[^/^\\.]*))/" EXCLUDE
 )

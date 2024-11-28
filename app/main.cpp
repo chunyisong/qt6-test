@@ -28,10 +28,10 @@ void initGlobalFont(QApplication& mainApp)
 #endif //Q_OS_WASM
 }
 
-/// 初始化静态库中的资源,qrc文件名称要符合c++变量命名规范,该函数不能在命名空间中,必须在全局中定义该函数执行Q_INIT_RESOURCE
+/// 初始化静态库中的资源,<qrc文件名>称要符合c++变量命名规范,该函数不能在命名空间中,必须在全局中定义该函数执行Q_INIT_RESOURCE
 inline void initResources()
 {
-#ifndef APP_LIB_IMPORTS // 静态库时未定义宏导出,则注册资源文件
+#ifndef APP_LIB_IMPORTS // 静态库时未定义宏导出,则以<qrc文件名>注册资源文件
     Q_INIT_RESOURCE(mywindow);
     Q_INIT_RESOURCE(mywindow2);
     qDebug()<< __FUNCTION__ << __LINE__ << "APP_LIB_EXPORT not defined:STATIC";
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
         // dp = nullptr;
         auto dlg = new QDialog(dp);
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-        dlg->setWindowFlags(dlg->windowFlags() | Qt::WindowStaysOnTopHint);
+        // dlg->setWindowFlags(dlg->windowFlags() | Qt::WindowStaysOnTopHint);
         dlg->setModal(isModal);
         dlg->setLayout(vLayout);
         dlg->show();
@@ -93,5 +93,6 @@ int main(int argc, char* argv[])
     vLayout->addWidget(new MyWindow);
     win->setLayout(vLayout);
     win->show();
+
     return a.exec();
 }

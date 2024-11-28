@@ -143,6 +143,11 @@
             "name": "mingw13-gcc13-x86_64",
             "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
             "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
             "inherits": [
                 "use-gcc"
             ],

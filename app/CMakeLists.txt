@@ -69,6 +69,7 @@ else()
     #         DESTINATION ${install_runtime_dir}
     # )
 
+    # 生成qt部署脚本,将所有依赖的库拷贝到目标目录下
     qt_generate_deploy_app_script(
         TARGET ${PROJECT_NAME}
         OUTPUT_SCRIPT deploy_script
@@ -76,7 +77,7 @@ else()
         NO_COMPILER_RUNTIME
         # NO_UNSUPPORTED_PLATFORM_ERROR
     )
-    message(STATUS "**** ${PROJECT_NAME} deploy_script: ${deploy_script}")
+    message(STATUS "**** ${PROJECT_NAME} qt deploy_script: ${deploy_script}")
     install(SCRIPT ${deploy_script})
 endif()
 
