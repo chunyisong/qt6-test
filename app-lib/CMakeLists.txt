@@ -2,6 +2,20 @@ cmake_minimum_required(VERSION 3.21.1)
 
 project(MyWindow)
 
+set(install_dir gcc/${PROJECT_NAME}) #相对于 CMAKE_INSTALL_PREFIX
+if (MINGW)
+    set(install_dir mingw32/${PROJECT_NAME})
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(install_dir mingw64/${PROJECT_NAME})
+    endif()
+elseif (MSVC)
+    # 添加编译选项, 设置源代码的编码格式为utf-8 /source-charset:utf-8 + /execution-charset:utf-8 = /utf-8
+    add_compile_options("/utf-8")
+    set(install_dir msvc/${PROJECT_NAME})
+elseif(EMSCRIPTEN)
+    set(install_dir wasm32/${PROJECT_NAME})
+endif()
+
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 qt_standard_project_setup() # auto uic/moc/dirs
@@ -9,8 +23,6 @@ qt_standard_project_setup() # auto uic/moc/dirs
 # set(CMAKE_AUTOUIC ON)
 # 把.qrc文件当成源文件放入add_executable/add_library中即可;对于静态库,qrc文件名必须全局唯一且符合c++变量名规范以便添加到main Q_INIT_RESOURCE(qrc文件名);
 set(CMAKE_AUTORCC ON)
-
-set(install_dir ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}) #相对于 CMAKE_INSTALL_PREFIX
 
 #设置自动生成目录
 set(autogen_dir ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen)
@@ -23,7 +35,7 @@ set(build_interface_dirs
 
 qt_policy(SET QTP0003 NEW) # 对qt_add_library等操作,让Qt6优先遵守已设定的BUILD_SHARED_LIBS,未设定则根据qt类型确定(静态qt则静态库)
 
-message(STATUS "*****CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},CMAKE_INSTALL_FULL_BINDIR:${CMAKE_INSTALL_FULL_BINDIR},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
+message(STATUS "*****${PROJECT_NAME} CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},install_dir:${install_dir},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
 
 qt_add_library(${PROJECT_NAME} mywindow.cpp mywindow.qrc mywindow2.qrc)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
@@ -61,3 +73,5 @@ install(DIRECTORY ${autogen_dir}/include/  ${autogen_dir}/include_${CMAKE_BUILD_
         FILES_MATCHING PATTERN "*.h"
         REGEX "(/|^)([gG]eneratedFiles|bin|dist|build|lib|Debug|debug|Release|release|(\\.[^/^\\.]*))/" EXCLUDE
 )
+
+add_subdirectory(test)
