@@ -2,6 +2,20 @@ cmake_minimum_required(VERSION 3.21.1)
 
 project(MyWindow)
 
+set(install_dir gcc/${PROJECT_NAME}) #相对于 CMAKE_INSTALL_PREFIX
+if (MINGW)
+    set(install_dir mingw32/${PROJECT_NAME})
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(install_dir mingw64/${PROJECT_NAME})
+    endif()
+elseif (MSVC)
+    # 添加编译选项, 设置源代码的编码格式为utf-8 /source-charset:utf-8 + /execution-charset:utf-8 = /utf-8
+    add_compile_options("/utf-8")
+    set(install_dir msvc/${PROJECT_NAME})
+elseif(EMSCRIPTEN)
+    set(install_dir wasm32/${PROJECT_NAME})
+endif()
+
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 qt_standard_project_setup() # auto uic/moc/dirs
@@ -12,8 +26,6 @@ set(CMAKE_AUTORCC ON)
 
 #设置自动生成目录
 set(autogen_dir ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen)
-# 安装阶段(类库使用者需要的)头文件目录列表
-set(install_includes_dir ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 # 编译阶段(本次构建树需要的)头文件目录列表;生成表达式内务必使用绝对路径;需要发布的ui头文件需要特别处理
 set(build_interface_dirs
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -23,7 +35,7 @@ set(build_interface_dirs
 
 qt_policy(SET QTP0003 NEW) # 对qt_add_library等操作,让Qt6优先遵守已设定的BUILD_SHARED_LIBS,未设定则根据qt类型确定(静态qt则静态库)
 
-message(STATUS "*****CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},CMAKE_INSTALL_FULL_BINDIR:${CMAKE_INSTALL_FULL_BINDIR},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
+message(STATUS "*****${PROJECT_NAME} CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},install_dir:${install_dir},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
 
 qt_add_library(${PROJECT_NAME} mywindow.cpp mywindow.qrc mywindow2.qrc)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
@@ -37,35 +49,29 @@ endif()
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${build_interface_dirs}
-        $<INSTALL_INTERFACE:${install_includes_dir}>
+        $<INSTALL_INTERFACE:${install_dir}/${CMAKE_INSTALL_INCLUDEDIR}>
 )
 set_target_properties(${PROJECT_NAME} PROPERTIES
     AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/ui"
     AUTOGEN_BUILD_DIR ${autogen_dir}
 )
-if(EMSCRIPTEN)
-    # qtbase src/corelib/Qt6WasmMacros.cmake
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        QT_WASM_MAXIMUM_MEMORY "2GB" # 最大内存4G,必须是64KB的整数倍
-        QT_WASM_INITIAL_MEMORY "500MB" # 初始内存500NB,必须是64KB的整数倍
-        QT_WASM_PTHREAD_POOL_SIZE 4 # 除主线程为额外线程池大小,多线程启用时有效
-    )
-endif()
 install(TARGETS ${PROJECT_NAME}
         EXPORT ${PROJECT_NAME}Exports
-		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${install_dir}/${CMAKE_INSTALL_BINDIR}
+		ARCHIVE DESTINATION ${install_dir}/${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${install_dir}/${CMAKE_INSTALL_LIBDIR}
 )
 # 拷贝代码目录下的头文件及其树结构;如果目录后缀不带反斜杠/则在安装时会包括目录本身
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${install_includes_dir}
+        DESTINATION ${install_dir}/${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.h"
         REGEX "(/|^)([gG]eneratedFiles|bin|dist|build|lib|Debug|debug|Release|release|(\\.[^/^\\.]*))/" EXCLUDE
 )
 # 需要发布的ui头文件需要拷贝到包含目录
 install(DIRECTORY ${autogen_dir}/include/  ${autogen_dir}/include_${CMAKE_BUILD_TYPE}/
-        DESTINATION ${install_includes_dir}
+        DESTINATION ${install_dir}/${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.h"
         REGEX "(/|^)([gG]eneratedFiles|bin|dist|build|lib|Debug|debug|Release|release|(\\.[^/^\\.]*))/" EXCLUDE
 )
+
+add_subdirectory(test)

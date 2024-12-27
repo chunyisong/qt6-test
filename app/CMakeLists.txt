@@ -2,6 +2,20 @@ cmake_minimum_required(VERSION 3.21.1)
 
 project(app)
 
+set(install_dir gcc/${PROJECT_NAME}) #相对于 CMAKE_INSTALL_PREFIX
+if (MINGW)
+    set(install_dir mingw32/${PROJECT_NAME})
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(install_dir mingw64/${PROJECT_NAME})
+    endif()
+elseif (MSVC)
+    # 添加编译选项, 设置源代码的编码格式为utf-8 /source-charset:utf-8 + /execution-charset:utf-8 = /utf-8
+    add_compile_options("/utf-8")
+    set(install_dir msvc/${PROJECT_NAME})
+elseif(EMSCRIPTEN)
+    set(install_dir wasm32/${PROJECT_NAME})
+endif()
+
 find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools)
 
 qt_standard_project_setup() # auto uic/moc/dirs
@@ -21,7 +35,7 @@ set(build_interface_dirs
 
 qt_policy(SET QTP0003 NEW) # 对qt_add_library等操作,让Qt6优先遵守已设定的BUILD_SHARED_LIBS,未设定则根据qt类型确定(静态qt则静态库)
 
-message(STATUS "*****CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},CMAKE_INSTALL_FULL_BINDIR:${CMAKE_INSTALL_FULL_BINDIR},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
+message(STATUS "*****${PROJECT_NAME} CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX},install_dir:${install_dir},BUILD_SHARED_LIBS:${BUILD_SHARED_LIBS}")
 
 qt_add_executable(${PROJECT_NAME} main.cpp rcc.qrc)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets MyWindow)
@@ -51,7 +65,7 @@ if(EMSCRIPTEN)
     # 安装部署相关的html文件到指定目录
     install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/
-        DESTINATION ${CMAKE_INSTALL_BINDIR}/${PROJECT_NAME}
+        DESTINATION ${install_dir}/${CMAKE_INSTALL_BINDIR}
         FILES_MATCHING
         REGEX "^${CMAKE_CURRENT_BINARY_DIR}/[^/]+\\.(js|wasm|data|html|map|ico|svg)$"
         PATTERN "res/*"
@@ -60,23 +74,23 @@ if(EMSCRIPTEN)
     )
 else()
     install(TARGETS ${PROJECT_NAME}
-		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${install_dir}/${CMAKE_INSTALL_BINDIR}
+		ARCHIVE DESTINATION ${install_dir}/${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${install_dir}/${CMAKE_INSTALL_LIBDIR}
     )
     # 拷贝配置目录本身及其后代目录结构和文件;如果目录后缀不带反斜杠/则在安装时会包括目录本身
     # install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/config
     #         DESTINATION ${install_runtime_dir}
     # )
 
-    qt_generate_deploy_app_script(
-        TARGET ${PROJECT_NAME}
-        OUTPUT_SCRIPT deploy_script
-        NO_TRANSLATIONS
-        NO_COMPILER_RUNTIME
-        # NO_UNSUPPORTED_PLATFORM_ERROR
-    )
-    message(STATUS "**** ${PROJECT_NAME} deploy_script: ${deploy_script}")
-    install(SCRIPT ${deploy_script})
+    # 生成qt部署脚本,将所有依赖的库拷贝到目标目录下
+    # qt_generate_deploy_app_script(
+    #     TARGET ${PROJECT_NAME}
+    #     OUTPUT_SCRIPT deploy_script
+    #     NO_TRANSLATIONS
+    #     NO_COMPILER_RUNTIME
+    #     # NO_UNSUPPORTED_PLATFORM_ERROR
+    # )
+    # message(STATUS "**** ${PROJECT_NAME} qt deploy_script: ${deploy_script}")
+    # install(SCRIPT ${deploy_script})
 endif()
-
