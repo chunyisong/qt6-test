@@ -7,65 +7,43 @@
     },
     "configurePresets": [
         {
-            "name": "use-ninja",
+            "name": "ninja-build",
             "hidden": true,
             "generator": "Ninja",
+            "description": "buildType:Release/Debug/RelWithDebInfo/MinSizeRel;buildComplier:GCC64/MSVC64/MINGW64/WASM32-st/WASM32-mt",
+            "environment": {
+                "buildComplier": "GCC64",
+                "buildType": "Release"
+            },
+            "binaryDir": "${sourceDir}/_build-$env{buildComplier}",
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_CXX_STANDARD": "17",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_VERBOSE_MAKEFILE": "ON",
+                "CMAKE_FIND_DEBUG_MODE": "FALSE",
+                "CMAKE_POSITION_INDEPENDENT_CODE":"ON",
                 "CMAKE_DEBUG_POSTFIX": "d",
-                "BUILD_SHARED_LIBS": "ON"
+                "BUILD_SHARED_LIBS": "OFF",
+                "CMAKE_BUILD_TYPE": "$env{buildType}",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/_dist-$env{buildComplier}-$env{buildType}",
+                "CMAKE_PREFIX_PATH": "${sourceDir}/_dist-$env{buildComplier}-$env{buildType}"
             }
         },
         {
-            "name": "default-build-dir",
+            "name": "use-msvc",
             "hidden": true,
-            "binaryDir": "${sourceDir}/build",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/dist"
-            }
-        },
-        {
-            "name": "debug-build",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "release-build",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "release-with-min-size-build",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "MinSizeRel"
-            }
-        },
-        {
-            "name": "release-with-debug-build",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-            }
-        },
-        {
-            "name": "use-vc",
-            "hidden": true,
-            "inherits": [
-                "default-build-dir",
-                "use-ninja"
-            ],
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [
+                        "Windows"
+                    ]
+                }
             },
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl",
@@ -73,109 +51,70 @@
             }
         },
         {
-            "name": "vc143-arch-x64",
-            "description": "指定msvc特定版本对应的CMAKE_VS_PLATFORM_TOOLSET_VERSION,该值为Community/VC/Auxiliary/Build/Microsoft.VCToolsVersion.*.props 文件中的'VCToolsVersion'属性配置的值. It also matches vcvarsall.bat's -vcvars_ver= behavior.",
+            "name": "msvc143-x64",
+            "description": "指定msvc特定版本(Community/Enterprise),需要配置INCLUDE和LIB环境变量,并把cl.exe目录添加到PATH",
             "hidden": true,
             "architecture": {
                 "value": "x64",
                 "strategy": "external"
             },
             "toolset": {
-                "value": "host=x64,version=14.41",
-                "strategy": "external"
-            }
-        },
-        {
-            "name": "vc143-arch-x86",
-            "description": "指定msvc特定版本对应的CMAKE_VS_PLATFORM_TOOLSET_VERSION,该值为Community/VC/Auxiliary/Build/Microsoft.VCToolsVersion.*.props 文件中的'VCToolsVersion'属性配置的值. It also matches vcvarsall.bat's -vcvars_ver= behavior.",
-            "hidden": true,
-            "architecture": {
-                "value": "x86",
+                "value": "host=x64",
                 "strategy": "external"
             },
-            "toolset": {
-                "value": "host=x86,version=14.41",
-                "strategy": "external"
-            }
-        },
-        {
-            "name": "vc143-default",
-            "hidden": true,
             "inherits": [
-                "use-vc",
-                "vc143-arch-x64"
+                "use-msvc"
             ],
-            "vendor": {
-                "microsoft.com/VisualStudioSettings/CMake/1.0": {
-                    "hostOS": [
-                        "Windows"
-                    ]
-                }
+            "environment": {
+                "buildComplier": "MSVC64",
+                "WIN10_INCLUDE_DIR": "C:/Program Files (x86)/Windows Kits/10/include/10.0.19041.0",
+                "WIN10_LIB_DIR": "C:/Program Files (x86)/Windows Kits/10/lib/10.0.19041.0",
+                "MSVC_DIR": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433",
+                "MSVC_CL_DIR": "$env{MSVC_DIR}/bin/HostX64/x64",
+                "INCLUDE": "$env{MSVC_DIR}/include;$env{WIN10_INCLUDE_DIR}/ucrt;$env{WIN10_INCLUDE_DIR}/um;$env{WIN10_INCLUDE_DIR}/shared",
+                "LIB": "$env{MSVC_DIR}/lib/x64;$env{WIN10_LIB_DIR}/ucrt/x64;$env{WIN10_LIB_DIR}/um/x64"
             }
-        },
-        {
-            "name": "vc143-x64-dbg",
-            "inherits": [
-                "vc143-default",
-                "debug-build"
-            ]
-        },
-        {
-            "name": "vc143-x64-rel",
-            "inherits": [
-                "vc143-default",
-                "release-build"
-            ]
         },
         {
             "name": "use-gcc",
             "hidden": true,
-            "inherits": [
-                "default-build-dir",
-                "use-ninja"
-            ],
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++"
             }
         },
         {
+            "name": "gcc-x86_64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "environment": {
+                "buildComplier": "GCC64"
+            },
+            "inherits": [
+                "use-gcc"
+            ]
+        },
+        {
             "name": "mingw13-gcc13-x86_64",
             "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
             "hidden": true,
-            "inherits": [
-                "use-gcc"
-            ],
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
             },
-            "environment": {
-                "CMT_MINGW_PATH": "C:/Qt/Tools/mingw1310_64/bin",
-                "MINGW_DIR": "$env{CMT_MINGW_PATH}/.."
-            }
-        },
-        {
-            "name": "gcc-x86_64",
-            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
-            "hidden": true,
             "inherits": [
                 "use-gcc"
             ],
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Linux"
-            }
-        },
-        {
-            "name": "qt6-mingw13-x86_64",
-            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
-            "hidden": true,
             "environment": {
-                "QT_DIR": "C:/Qt/6.8.0/mingw_64",
-                "PATH": "$env{QT_DIR}/bin;$env{MINGW_DIR}/bin;$penv{PATH}"
+                "buildComplier": "MINGW64",
+                "CMT_MINGW_PATH": "C:/Qt/Tools/mingw1310_64/bin",
+                "MINGW_DIR": "$env{CMT_MINGW_PATH}/.."
             }
         },
         {
@@ -183,160 +122,253 @@
             "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
             "hidden": true,
             "environment": {
-                "QT_DIR": "/qt-dev/Qt/6.8.0/gcc_64",
-                "PATH": "$env{QT_DIR}/bin:$penv{PATH}"
+                "QT_HOME": "/qt-dev/Qt/6.8.1/gcc_64",
+                "PATH": "$env{QT_HOME}/bin:$penv{PATH}"
             }
         },
         {
-            "name": "qt6-vc143-x64",
+            "name": "qt6-mingw13-x86_64",
             "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
             "hidden": true,
             "environment": {
-                "QT_DIR": "C:/Qt/6.8.0/msvc2022_64",
-                "PATH": "$env{QT_DIR}/bin;$penv{PATH}"
+                "QT_HOME": "C:/Qt/6.8.1/mingw_64",
+                "PATH": "$env{QT_HOME}/bin;$env{MINGW_DIR}/bin;$penv{PATH}"
             }
         },
         {
-            "name": "qt6-mingw13-x86_64-rel",
+            "name": "qt6-msvc143-x64",
             "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "environment": {
+                "QT_HOME": "C:/Qt/6.8.1/msvc2022_64",
+                "PATH": "$env{QT_HOME}/bin;$penv{MSVC_CL_DIR};$penv{PATH}"
+            }
+        },
+        {
+            "name": "qt6-wasm32-st-gcc64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "environment": {
+                "buildComplier": "WASM32-st-GCC64",
+                "QT_HOME": "/qt-dev/Qt/6.8.1/wasm_singlethread",
+                "CMAKE_TOOLCHAIN_FILE":"$env{QT_HOME}/lib/cmake/Qt6/qt.toolchain.cmake",
+                "EMSDK": "/qt-dev/emsdk",
+                "EMSDK_NODE": "$env{EMSDK}/node/18.20.3_64bit/bin/node",
+                "PATH": "$env{EMSDK}:$env{EMSDK}/upstream/emscripten:$env{EMSDK_NODE}/../bin:$env{QT_HOME}/bin:$penv{PATH}"
+            }
+        },
+        {
+            "name": "qt6-wasm32-mt-gcc64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
             "inherits": [
-                "qt6-mingw13-x86_64",
-                "mingw13-gcc13-x86_64",
-                "release-build"
+                "qt6-wasm32-st-gcc64"
+            ],
+            "environment": {
+                "buildComplier": "WASM32-mt-GCC64",
+                "QT_HOME": "/qt-dev/Qt/6.8.1/wasm_multithread"
+            }
+        },
+        {
+            "name": "qt6-wasm32-st-mingw64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "environment": {
+                "buildComplier": "WASM32-st-MINGW64",
+                "QT_HOME": "C:/Qt/6.8.1/wasm_singlethread",
+                "CMAKE_TOOLCHAIN_FILE":"$env{QT_HOME}/lib/cmake/Qt6/qt.toolchain.cmake",
+                "EMSDK": "D:/wasm/emsdk",
+                "EMSDK_NODE": "$env{EMSDK}/node/20.18.0_64bit/bin/node",
+                "PATH": "$env{EMSDK};$env{EMSDK}/upstream/emscripten;$env{EMSDK_NODE}/../bin;$env{QT_HOME}/bin;$penv{PATH}"
+            }
+        },
+        {
+            "name": "qt6-wasm32-mt-mingw64",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "inherits": [
+                "qt6-wasm32-st-mingw64"
+            ],
+            "environment": {
+                "buildComplier": "WASM32-mt-MINGW64",
+                "QT_HOME": "C:/Qt/6.8.1/wasm_multithread"
+            }
+        },
+        {
+            "name": "zyLibs-qt6-gcc-x86_64-rel",
+            "description": "qORB库相关项;作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "environment": {
+                "zycmakeHome": "/qt-dev/cgfweb/zycmake",
+                "libCimHome": "/qt-dev/cantor_sdk/_dist-$env{buildComplier}-$env{buildType}",
+                "libCgoHome": "/qt-dev/home/dxl/webcgo/ld/ld_master/_dist-$env{buildComplier}-$env{buildType}"
+            },
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "${sourceDir}/_dist-$env{buildComplier}-$env{buildType};$env{libCimHome};$env{libCgoHome}"
+            }
+        },
+        {
+            "name": "zyLibs-qt6-gcc-x86_64-dbg",
+            "description": "qORB库相关项;作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "environment": {
+                "libCgoHome": "/qt-dev/home/dxl/webcgo/ld/ld_master/_dist-$env{buildComplier}-Release"
+            },
+            "inherits": [
+                "zyLibs-qt6-gcc-x86_64-rel"
             ]
         },
         {
-            "name": "qt6-mingw13-x86_64-dbg",
-            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "name": "zyLibs-qt6-wasm32-st-gcc64-rel",
+            "description": "qORB库相关项;作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
             "inherits": [
-                "qt6-mingw13-x86_64",
-                "mingw13-gcc13-x86_64",
-                "debug-build"
+                "zyLibs-qt6-gcc-x86_64-rel"
             ]
         },
         {
-            "name": "qt6-gcc-x86_64-dbg",
-            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "name": "zyLibs-qt6-mingw13-x86_64-rel",
+            "description": "qORB库相关项;作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
             "inherits": [
-                "qt6-gcc-x86_64",
-                "gcc-x86_64",
-                "debug-build"
+                "zyLibs-qt6-gcc-x86_64-rel"
+            ],
+            "environment": {
+                "zycmakeHome": "D:/dt_cpp/zycmake",
+                "libCimHome": "D:/dds/cantor_sdk/_dist-$env{buildComplier}-$env{buildType}",
+                "libCgoHome": "D:/cgo/_dist-$env{buildComplier}-$env{buildType}"
+            }
+        },
+        {
+            "name": "zyLibs-qt6-wasm32-st-mingw64-rel",
+            "description": "qORB库相关项;作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "inherits": [
+                "zyLibs-qt6-mingw13-x86_64-rel"
+            ]
+        },
+        {
+            "name": "zyLibs-qt6-msvc143-x64-rel",
+            "description": "qORB库相关项;作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "inherits": [
+                "zyLibs-qt6-mingw13-x86_64-rel"
+            ]
+        },
+        {
+            "name": "zyLibs-qt6-msvc143-x64-dgb",
+            "description": "qORB库相关项;作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "hidden": true,
+            "inherits": [
+                "zyLibs-qt6-msvc143-x64-rel"
             ]
         },
         {
             "name": "qt6-gcc-x86_64-rel",
             "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
             "inherits": [
+                "zyLibs-qt6-gcc-x86_64-rel",
                 "qt6-gcc-x86_64",
                 "gcc-x86_64",
-                "release-build"
+                "ninja-build"
             ]
         },
         {
-            "name": "qt6-vc143-x64-rel",
+            "name": "qt6-gcc-x86_64-dbg",
             "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
             "inherits": [
-                "qt6-vc143-x64",
-                "vc143-default",
-                "release-build"
-            ]
-        },
-        {
-            "name": "qt6-vc143-x64-dbg",
-            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
-            "inherits": [
-                "qt6-vc143-x64",
-                "vc143-default",
-                "debug-build"
-            ]
-        },
-        {
-            "name": "qt6-wasm32-st-rel",
-            "binaryDir": "${sourceDir}/build-st",
-            "inherits": [
-                "release-build",
-                "gcc-x86_64"
+                "zyLibs-qt6-gcc-x86_64-dbg",
+                "qt6-gcc-x86_64-rel"
             ],
-            "cacheVariables": {
-                "BUILD_SHARED_LIBS": "OFF",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build-st/dist"
-            },
             "environment": {
-                "EMSDK": "/qt-dev/emsdk",
-                "EMSDK_NODE": "$env{EMSDK}/node/18.20.3_64bit/bin/node",
-                "PATH": "$env{EMSDK}:$env{EMSDK}/upstream/emscripten:$env{EMSDK_NODE}/../bin:$penv{PATH}",
-                "QT_DIR_WASM": "/qt-dev/Qt/6.8.0/wasm_singlethread",
-                "CMAKE_TOOLCHAIN_FILE":"$env{QT_DIR_WASM}/lib/cmake/Qt6/qt.toolchain.cmake"
+                "buildType": "Debug"
             }
         },
         {
-            "name": "qt6-wasm32-mt-rel",
+            "name": "qt6-wasm32-st-gcc64-rel",
             "inherits": [
-                "qt6-wasm32-st-rel"
+                "zyLibs-qt6-wasm32-st-gcc64-rel",
+                "qt6-wasm32-st-gcc64",
+                "ninja-build"
+            ]
+        },
+        {
+            "name": "qt6-wasm32-st-gcc64-dbg",
+            "inherits": [
+                "qt6-wasm32-st-gcc64-rel"
             ],
-            "binaryDir": "${sourceDir}/build-mt",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build-mt/dist"
-            },
             "environment": {
-                "QT_DIR_WASM": "/qt-dev/Qt/6.8.0/wasm_multithread"
+                "buildType": "Debug"
+            }
+        },
+        {
+            "name": "qt6-wasm32-mt-gcc64-rel",
+            "inherits": [
+                "zyLibs-qt6-wasm32-st-gcc64-rel",
+                "qt6-wasm32-mt-gcc64",
+                "ninja-build"
+            ]
+        },
+        {
+            "name": "qt6-wasm32-st-mingw64-rel",
+            "inherits": [
+                "zyLibs-qt6-wasm32-st-mingw64-rel",
+                "qt6-wasm32-st-mingw64",
+                "ninja-build"
+            ]
+        },
+        {
+            "name": "qt6-mingw13-x86_64-rel",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "zyLibs-qt6-mingw13-x86_64-rel",
+                "qt6-mingw13-x86_64",
+                "mingw13-gcc13-x86_64",
+                "ninja-build"
+            ]
+        },
+        {
+            "name": "qt6-mingw13-x86_64-dbg",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "qt6-mingw13-x86_64-rel"
+            ],
+            "environment": {
+                "buildType": "Debug"
+            }
+        },
+        {
+            "name": "qt6-msvc143-x64-rel",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "zyLibs-qt6-msvc143-x64-rel",
+                "qt6-msvc143-x64",
+                "msvc143-x64",
+                "ninja-build"
+            ]
+        },
+        {
+            "name": "qt6-msvc143-x64-dbg",
+            "description": "作为父预设的环境变量名称如PATH最好不同,否则多个继承时优先级最高的第一个父预设会覆盖其他继承的同名环境变量",
+            "inherits": [
+                "zyLibs-qt6-msvc143-x64-dgb",
+                "qt6-msvc143-x64-rel"
+            ],
+            "environment": {
+                "buildType": "Debug"
             }
         }
     ],
     "buildPresets": [
-        {
-            "name": "vc143X64Dbg",
-            "configurePreset": "vc143-x64-dbg"
-        },
-        {
-            "name": "vc143X64Rel",
-            "configurePreset": "vc143-x64-rel"
-        },
-        {
-            "name": "qtVc143X64Dbg",
-            "configurePreset": "qt6-vc143-x64-dbg",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
-            "targets": "install"
-        },
-        {
-            "name": "qtVc143X64Rel",
-            "configurePreset": "qt6-vc143-x64-rel",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
-            "targets": "install"
-        },
-        {
-            "name": "qtMingw13X8664Dbg",
-            "configurePreset": "qt6-mingw13-x86_64-dbg",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
-            "targets": "install"
-        },
-        {
-            "name": "qtMingw13X8664Rel",
-            "configurePreset": "qt6-mingw13-x86_64-rel",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
-            "targets": "install"
-        },
-        {
-            "name": "qtGccX8664Dgb",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
-            "configurePreset": "qt6-gcc-x86_64-dbg",
-            "targets": "install"
-        },
-        {
-            "name": "qtGccX8664Rel",
-            "description": "如果第一次配置时预设的环境变量不生效(如找不到qt)，可尝试切换到其他预设后再切回来即可",
-            "configurePreset": "qt6-gcc-x86_64-rel",
-            "targets": "install"
-        },
-        {
-            "name": "qtWasmStRel",
-            "configurePreset": "qt6-wasm32-st-rel",
-            "targets": "install"
-        },
-        {
-            "name": "qtWasmMtRel",
-            "configurePreset": "qt6-wasm32-mt-rel",
-            "targets": "install"
-        }
     ]
 }
